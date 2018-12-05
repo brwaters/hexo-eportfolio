@@ -1,0 +1,28 @@
+# CI/CD file for deploying a Hexo site to GitLab Pages
+image: node:10.8
+# Cache modules across all branches and jobs
+cache:
+  key: project
+  paths:
+  - node_modules/
+
+stages:
+  - build
+
+before_script:
+  - npm install
+  - npm install -g staticrypt
+  - npm install hexo-renderer-sass
+  - npm install hexo-render-pug
+  - npm install hexo-generator-feed
+
+pages:
+  stage: build
+  script:
+    - ./node_modules/hexo/bin/hexo generate
+    - mv public/resume/index.html public/resume/index_tmp.html
+    - staticrypt public/resume/index_tmp.html $PASS -o public/resume/index.html
+    - rm public/resume/index_tmp.html
+  artifacts:
+    paths:
+    - public
